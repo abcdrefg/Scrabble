@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.RegisterController">
+    <children>
+        <ImageView fitHeight="600.0" fitWidth="800.0">
+            <image>
+                <Image url="@img/vintage-clean-green-paper-background-texture.jpg" />
+            </image>
+        </ImageView>
+        <Button fx:id="registerButton" layoutX="200.0" layoutY="500.0" mnemonicParsing="false" onAction="#registerNewUser" prefHeight="40.0" prefWidth="150.0" style="-fx-background-color: #fff0b3; -fx-text-fill: #cca300; -fx-font-size: 20;" text="Zarejestruj" />
+        <Button fx:id="returnButton" layoutX="450.0" layoutY="500.0" mnemonicParsing="false" onAction="#returnToLoginPage" prefHeight="40.0" prefWidth="150.0" style="-fx-background-color: #fff0b3; -fx-text-fill: #cca300; -fx-font-size: 20;" text="Powrót" />
+        <TextField fx:id="loginField" layoutX="300.0" layoutY="270.0" prefWidth="200.0" />
+        <PasswordField fx:id="passwordField" layoutX="300.0" layoutY="340.0" prefHeight="25.0" prefWidth="199.0" />
+        <Label layoutX="300.0" layoutY="300.0" prefHeight="30.0" prefWidth="200.0" style="-fx-text-fill: #fff0b3; -fx-font-weight: bold; -fx-font-size: 20; -fx-alignment: center;" text="Wybierz hasło" />
+        <Label layoutX="300.0" layoutY="227.0" prefHeight="30.0" prefWidth="200.0" style="-fx-text-fill: #fff0b3; -fx-font-weight: bold; -fx-font-size: 20; -fx-alignment: center;" text="Wybierz login" />
+        <ImageView fitHeight="225.0" fitWidth="500.0" layoutX="230.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@img/ScrabbleLogo.png" />
+            </image>
+        </ImageView>
+      <Label layoutX="300.0" layoutY="372.0" prefHeight="30.0" prefWidth="200.0" style="-fx-text-fill: #fff0b3; -fx-font-weight: bold; -fx-font-size: 20; -fx-alignment: center;" text="Powtórz hasło" />
+      <PasswordField fx:id="repeatPasswordField" layoutX="301.0" layoutY="402.0" prefHeight="25.0" prefWidth="199.0" />
+    </children></AnchorPane>

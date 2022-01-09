@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <ImageView fitHeight="600.0" fitWidth="800.0">
+            <image>
+                <Image url="@img/vintage-clean-green-paper-background-texture.jpg" />
+            </image>
+        </ImageView>
+        <Button layoutX="300.0" layoutY="533.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="200.0" style="-fx-background-color: #fff0b3; -fx-text-fill: #cca300; -fx-font-size: 20;" text="Graj " />
+        <ImageView fitHeight="225.0" fitWidth="500.0" layoutX="230.0" layoutY="-31.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@img/ScrabbleLogo.png" />
+            </image>
+        </ImageView>
+      <AnchorPane layoutX="102.0" layoutY="192.0">
+         <children>
+              <Label prefHeight="30.0" prefWidth="300.0" style="-fx-text-fill: #fff0b3; -fx-font-weight: bold; -fx-font-size: 20; -fx-alignment: center;" text="Gracz 1" />
+            <Label layoutY="57.0" prefHeight="30.0" prefWidth="300.0" style="-fx-text-fill: #fff0b3; -fx-font-weight: bold; -fx-font-size: 20; -fx-alignment: center;" text="Nick Zalogowanego " />
+         </children>
+      </AnchorPane>
+      <AnchorPane layoutX="418.0" layoutY="172.0">
+         <children>
+            <Label prefHeight="30.0" prefWidth="300.0" style="-fx-text-fill: #fff0b3; -fx-font-weight: bold; -fx-font-size: 20; -fx-alignment: center;" text="Gracz 2" />
+            <Label layoutY="30.0" prefHeight="30.0" prefWidth="300.0" style="-fx-text-fill: #fff0b3; -fx-font-weight: bold; -fx-font-size: 15; -fx-alignment: center;" text="Login" />
+            <TextField layoutX="76.0" layoutY="67.0" />
+            <Label layoutX="1.0" layoutY="92.0" prefHeight="30.0" prefWidth="300.0" style="-fx-text-fill: #fff0b3; -fx-font-weight: bold; -fx-font-size: 15; -fx-alignment: center;" text="Hasło" />
+            <PasswordField layoutX="77.0" layoutY="128.0" />
+         </children>
+      </AnchorPane>
+      <AnchorPane layoutX="102.0" layoutY="352.0">
+         <children>
+            <Label layoutX="1.0" prefHeight="30.0" prefWidth="300.0" style="-fx-text-fill: #fff0b3; -fx-font-weight: bold; -fx-font-size: 20; -fx-alignment: center;" text="Gracz 3" />
+            <TextField layoutX="76.0" layoutY="67.0" />
+            <Label layoutY="30.0" prefHeight="30.0" prefWidth="300.0" style="-fx-text-fill: #fff0b3; -fx-font-weight: bold; -fx-font-size: 15; -fx-alignment: center;" text="Login" />
+            <PasswordField layoutX="76.0" layoutY="128.0" />
+            <Label layoutX="1.0" layoutY="92.0" prefHeight="30.0" prefWidth="300.0" style="-fx-text-fill: #fff0b3; -fx-font-weight: bold; -fx-font-size: 15; -fx-alignment: center;" text="Hasło" />
+         </children>
+      </AnchorPane>
+      <AnchorPane layoutX="419.0" layoutY="355.0">
+         <children>
+            <Label layoutX="1.0" prefHeight="30.0" prefWidth="300.0" style="-fx-text-fill: #fff0b3; -fx-font-weight: bold; -fx-font-size: 20; -fx-alignment: center;" text="Gracz 4" />
+            <TextField layoutX="76.0" layoutY="67.0" />
+            <Label layoutY="30.0" prefHeight="30.0" prefWidth="300.0" style="-fx-text-fill: #fff0b3; -fx-font-weight: bold; -fx-font-size: 15; -fx-alignment: center;" text="Login" />
+            <PasswordField layoutX="76.0" layoutY="128.0" />
+            <Label layoutX="1.0" layoutY="92.0" prefHeight="30.0" prefWidth="300.0" style="-fx-text-fill: #fff0b3; -fx-font-weight: bold; -fx-font-size: 15; -fx-alignment: center;" text="Hasło" />
+         </children>
+      </AnchorPane>
+    </children></AnchorPane>

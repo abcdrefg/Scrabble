@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="300.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.AlertController">
+   <children>
+      <Button fx:id="confirmationButton" layoutX="100.0" layoutY="222.0" mnemonicParsing="false" onAction="#closeWindow" prefHeight="41.0" prefWidth="100.0" text="OK" />
+      <Label fx:id="errorMessageLabel" alignment="CENTER" layoutX="8.0" layoutY="77.0" prefHeight="41.0" prefWidth="284.0" wrapText="true">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Label>
+   </children>
+</AnchorPane>

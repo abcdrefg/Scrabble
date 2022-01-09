@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.SelectPlayersController">
+    <children>
+        <ImageView fitHeight="600.0" fitWidth="800.0">
+            <image>
+                <Image url="@img/vintage-clean-green-paper-background-texture.jpg" />
+            </image>
+        </ImageView>
+        <Button fx:id="playButton" layoutX="152.0" layoutY="533.0" mnemonicParsing="false" onAction="#startGame" prefHeight="40.0" prefWidth="200.0" style="-fx-background-color: #fff0b3; -fx-text-fill: #cca300; -fx-font-size: 20;" text="Dalej" />
+        <ImageView fitHeight="225.0" fitWidth="500.0" layoutX="230.0" layoutY="-31.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@img/ScrabbleLogo.png" />
+            </image>
+        </ImageView>
+      <AnchorPane fx:id="mainAnchorPane" layoutX="102.0" layoutY="192.0" prefHeight="320.0" prefWidth="600.0">
+         <children>
+            <AnchorPane prefHeight="160.0" prefWidth="300.0">
+               <children>
+                    <Label fx:id="loggedPlayerLabel" prefHeight="30.0" prefWidth="300.0" style="-fx-text-fill: #fff0b3; -fx-font-weight: bold; -fx-font-size: 20; -fx-alignment: center;" text="Gracz 1" />
+                  <Label layoutY="65.0" prefHeight="30.0" prefWidth="300.0" style="-fx-text-fill: #fff0b3; -fx-font-weight: bold; -fx-font-size: 20; -fx-alignment: center;" text="Nick Zalogowanego " />
+               </children>
+            </AnchorPane>
+            <AnchorPane fx:id="secondPlayerPane" layoutX="318.0" prefHeight="160.0" prefWidth="300.0">
+               <children>
+                  <ComboBox fx:id="secondPlayerCombobox" layoutX="75.0" layoutY="30.0" prefWidth="150.0" />
+                  <Label prefHeight="30.0" prefWidth="300.0" style="-fx-text-fill: #fff0b3; -fx-font-weight: bold; -fx-font-size: 20; -fx-alignment: center;" text="Gracz 2" />
+                  <Button fx:id="addSecondPlayerButton" layoutX="108.0" layoutY="116.0" mnemonicParsing="false" prefHeight="19.0" prefWidth="84.0" style="-fx-background-color: #fff0b3; -fx-text-fill: #cca300; -fx-font-size: 14;" text="Wybierz" />
+               </children>
+            </AnchorPane>
+            <AnchorPane fx:id="fourthPlayerPane" layoutX="318.0" layoutY="160.0" prefHeight="160.0" prefWidth="300.0">
+               <children>
+                  <Label prefHeight="30.0" prefWidth="300.0" style="-fx-text-fill: #fff0b3; -fx-font-weight: bold; -fx-font-size: 20; -fx-alignment: center;" text="Gracz 4" />
+                  <ComboBox fx:id="fourthPlayerCombobox" layoutX="75.0" layoutY="30.0" prefWidth="150.0" />
+                  <Button fx:id="addFourthPlayerButton" layoutX="108.0" layoutY="116.0" mnemonicParsing="false" prefHeight="19.0" prefWidth="84.0" style="-fx-background-color: #fff0b3; -fx-text-fill: #cca300; -fx-font-size: 14;" text="Wybierz" />
+               </children>
+            </AnchorPane>
+            <AnchorPane fx:id="thirdPlayerPane" layoutY="160.0" prefHeight="160.0" prefWidth="300.0">
+               <children>
+                  <Label prefHeight="30.0" prefWidth="300.0" style="-fx-text-fill: #fff0b3; -fx-font-weight: bold; -fx-font-size: 20; -fx-alignment: center;" text="Gracz 3" />
+                  <ComboBox fx:id="thirdPlayerCombobox" layoutX="75.0" layoutY="30.0" prefWidth="150.0" />
+                  <Button fx:id="addThirdPlayerButton" layoutX="108.0" layoutY="116.0" mnemonicParsing="false" prefHeight="19.0" prefWidth="84.0" style="-fx-background-color: #fff0b3; -fx-text-fill: #cca300; -fx-font-size: 14;" text="Wybierz" />
+               </children>
+            </AnchorPane>
+         </children>
+      </AnchorPane>
+      <Button fx:id="returnButton" layoutX="468.0" layoutY="533.0" mnemonicParsing="false" onAction="#returnToMenuPage" prefHeight="40.0" prefWidth="200.0" style="-fx-background-color: #fff0b3; -fx-text-fill: #cca300; -fx-font-size: 20;" text="Powrót" />
+    </children></AnchorPane>
