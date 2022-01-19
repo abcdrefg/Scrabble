@@ -427,6 +427,20 @@ public class Game {
         //changePlayer();
     }
 
+    public void changeLetters(ArrayList<String> letterIndex){
+        Player player = getPLayer();
+        if(player.getIsItHuman()){
+            int pointsCouldGet = maxPointsHumanCouldGet(player);
+            player.setMaxPointsPlayerCouldGet(player.getMaxPointsPlayerCouldGet() + pointsCouldGet);
+        }
+        player.changeLetters(lettersInBox, letterIndex);
+        player.setTurnsMissingPlay(player.getTurnsMissingPlay() + 1);
+        if (player.getTurnsMissingPlay() == 3){
+            player.eliminate();
+        }
+        //changePlayer();
+    }
+
     public boolean endOfTheGame(){
         boolean allPlayersEliminated = true;
         for (int i = 0; i < listOfPlayers.size(); i++){

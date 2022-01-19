@@ -31,6 +31,7 @@ public class AlertHandler {
     public final static String EMPTY_LETTER = "Najpierw wybierz literę którą chcesz wymienić";
     public final static String END_OF_THE_GAME = "Koniec gry";
     public final static String END_OF_AI_MOVE = "Koniec tury gracza AI";
+    public final static String DURING_CHANGING = "Jesteś podczas wymieniania liter, nie możesz postawić litery na mapie";
 
     public void display(Alert.AlertType alertType, String title, String header, String content) {
         Alert alert = new Alert(alertType);

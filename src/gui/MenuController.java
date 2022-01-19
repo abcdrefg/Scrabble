@@ -18,6 +18,7 @@ public class MenuController {
     private static final String PATH_TO_PLAYER_MENU = "fxml/SelectPlayers.fxml";
     private static final String PATH_TO_AI_MENU = "fxml/AIMenu.fxml";
     private static final String PATH_TO_STATISTICS = "fxml/Statistics.fxml";
+    private static final String PATH_TO_LOGIN = "fxml/Login.fxml";
     private static DatabaseConnection databaseConnection;
     private static User user;
 
@@ -32,6 +33,27 @@ public class MenuController {
 
     @FXML
     private Button exitButton;
+
+    @FXML
+    private Button changePasswordButton;
+
+    @FXML
+    private Button logoutButton;
+
+    @FXML
+    void changePassword(ActionEvent event) {
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("fxml/ChangePassword.fxml"));
+        ControllersHelper.changeScene(changePasswordButton, fxmlLoader);
+        ChangePasswordController changePasswordController = fxmlLoader.getController();
+        changePasswordController.setUser(user);
+    }
+
+    @FXML
+    void logout(ActionEvent event) {
+        user = null;
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(PATH_TO_LOGIN));
+        ControllersHelper.changeScene(logoutButton, fxmlLoader);
+    }
 
     @FXML
     void openStatisticsPage(ActionEvent event) {

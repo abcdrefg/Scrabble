@@ -6,14 +6,14 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.MapController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.MapController">
    <children>
       <ImageView fitHeight="800.0" fitWidth="1200.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@img/wood.jpg" />
          </image>
       </ImageView>
-      <Button fx:id="SubmitButton" layoutX="983.0" layoutY="621.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="150.0" style="-fx-background-color: #fff0b3; -fx-text-fill: #cca300; -fx-font-size: 20;" text="Zatwierdź" />
+      <Button fx:id="SubmitButton" layoutX="983.0" layoutY="568.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="150.0" style="-fx-background-color: #fff0b3; -fx-text-fill: #cca300; -fx-font-size: 20;" text="Zatwierdź" />
       <Button fx:id="p0_0" layoutX="300.0" layoutY="68.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" style="-fx-background-color: red; -fx-border-color: black;" />
       <Button fx:id="p1_0" layoutX="300.0" layoutY="108.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" style="-fx-background-color: #009900; -fx-border-color: black;" />
       <Button fx:id="p2_0" layoutX="300.0" layoutY="148.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" style="-fx-background-color: #009900; -fx-border-color: black;" />
@@ -259,11 +259,16 @@
       <Label fx:id="PointsP2" layoutX="1058.0" layoutY="328.0" prefHeight="40.0" prefWidth="128.0" style="-fx-alignment: center; -fx-font-size: 20; -fx-text-fill: #ffcc66; -fx-font-weight: bold;" text="130" />
       <Label fx:id="PointsP3" layoutX="1058.0" layoutY="368.0" prefHeight="40.0" prefWidth="128.0" style="-fx-alignment: center; -fx-font-size: 20; -fx-text-fill: white; -fx-font-weight: bold;" text="23" />
       <Label fx:id="PointsP4" layoutX="1058.0" layoutY="408.0" prefHeight="40.0" prefWidth="128.0" style="-fx-alignment: center; -fx-font-size: 20; -fx-text-fill: white; -fx-font-weight: bold;" text="48" />
-      <Button fx:id="ChangeButton" layoutX="983.0" layoutY="461.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="150.0" style="-fx-background-color: #fff0b3; -fx-text-fill: #cca300; -fx-font-size: 20;" text="Zmień literę" />
-      <Button fx:id="Revert" layoutX="983.0" layoutY="541.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="150.0" style="-fx-background-color: #fff0b3; -fx-text-fill: #cca300; -fx-font-size: 20;" text="Cofnij" />
+      <Button fx:id="ChangeButton" layoutX="77.0" layoutY="481.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="150.0" style="-fx-background-color: #fff0b3; -fx-text-fill: #cca300; -fx-font-size: 20;" text="Zmień litery" />
+      <Button fx:id="Revert" layoutX="983.0" layoutY="481.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="150.0" style="-fx-background-color: #fff0b3; -fx-text-fill: #cca300; -fx-font-size: 20;" text="Cofnij" />
       <Label fx:id="turnTimeLbl" layoutX="991.0" layoutY="168.0" prefHeight="40.0" prefWidth="134.0" style="-fx-alignment: center; -fx-font-size: 20; -fx-text-fill: white; -fx-font-family: Impact;" />
       <Label fx:id="turnTimeLbl1" layoutX="991.0" layoutY="88.0" prefHeight="40.0" prefWidth="134.0" style="-fx-alignment: center; -fx-font-size: 20; -fx-text-fill: white; -fx-font-family: Impact;" />
       <Label fx:id="turnTimeLbl2" layoutX="991.0" layoutY="128.0" prefHeight="40.0" prefWidth="134.0" style="-fx-alignment: center; -fx-font-size: 20; -fx-text-fill: white; -fx-font-weight: 700;" text="Czas tury" />
       <Label fx:id="turnTimeLbl21" layoutX="991.0" layoutY="48.0" prefHeight="40.0" prefWidth="134.0" style="-fx-alignment: center; -fx-font-size: 20; -fx-text-fill: white; -fx-font-weight: 700;" text="Czas gry" />
+      <Button fx:id="AddLetterButton" layoutX="77.0" layoutY="568.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="150.0" style="-fx-background-color: #fff0b3; -fx-text-fill: #cca300; -fx-font-size: 20;" text="Dodaj literę" />
+      <Button fx:id="ConfirmChangeButton" layoutX="77.0" layoutY="655.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="150.0" style="-fx-background-color: #fff0b3; -fx-text-fill: #cca300; -fx-font-size: 20;" text="Zatwierdź" />
+      <Button fx:id="MenuButton" layoutX="983.0" layoutY="655.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="150.0" style="-fx-background-color: #fff0b3; -fx-text-fill: #cca300; -fx-font-size: 20;" text="Menu" />
+      <Button fx:id="SurrenderButton" layoutX="77.0" layoutY="121.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="150.0" style="-fx-background-color: #fff0b3; -fx-text-fill: #cca300; -fx-font-size: 20;" text="Poddaj się" />
+      <Button fx:id="PassButton" layoutX="77.0" layoutY="208.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="150.0" style="-fx-background-color: #fff0b3; -fx-text-fill: #cca300; -fx-font-size: 20;" text="Pomiń turę" />
    </children>
 </AnchorPane>

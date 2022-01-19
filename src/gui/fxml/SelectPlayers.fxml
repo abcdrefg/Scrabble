@@ -24,8 +24,8 @@
          <children>
             <AnchorPane prefHeight="160.0" prefWidth="300.0">
                <children>
-                    <Label fx:id="loggedPlayerLabel" prefHeight="30.0" prefWidth="300.0" style="-fx-text-fill: #fff0b3; -fx-font-weight: bold; -fx-font-size: 20; -fx-alignment: center;" text="Gracz 1" />
-                  <Label layoutY="65.0" prefHeight="30.0" prefWidth="300.0" style="-fx-text-fill: #fff0b3; -fx-font-weight: bold; -fx-font-size: 20; -fx-alignment: center;" text="Nick Zalogowanego " />
+                    <Label prefHeight="30.0" prefWidth="300.0" style="-fx-text-fill: #fff0b3; -fx-font-weight: bold; -fx-font-size: 20; -fx-alignment: center;" text="Gracz 1" />
+                  <Label fx:id="loggedPlayerLabel" layoutY="65.0" prefHeight="30.0" prefWidth="300.0" style="-fx-text-fill: #fff0b3; -fx-font-weight: bold; -fx-font-size: 20; -fx-alignment: center;" text="Nick Zalogowanego " />
                </children>
             </AnchorPane>
             <AnchorPane fx:id="secondPlayerPane" layoutX="318.0" prefHeight="160.0" prefWidth="300.0">

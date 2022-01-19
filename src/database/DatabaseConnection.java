@@ -3,6 +3,7 @@ package database;
 import User.Statistics;
 import User.User;
 
+import javax.xml.crypto.Data;
 import java.sql.*;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -137,7 +138,24 @@ public class DatabaseConnection {
         preparedStatement.setString(2, password);
         ResultSet resultSet = preparedStatement.executeQuery();
         boolean isUserExist = resultSet.next();
+        closeConnection();
         return isUserExist;
+    }
+
+    public boolean changePassword(String login, String password, String newPassword) throws SQLException{
+        if (checkIfUserExist(login, password)){
+            setConnection();
+            String sqlQuery = "UPDATE users SET password = ? WHERE login = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+            preparedStatement.setString(1, newPassword);
+            preparedStatement.setString(2, login);
+            int value = preparedStatement.executeUpdate();
+            closeConnection();
+            return value > 0;
+        }else {
+            closeConnection();
+            return false;
+        }
     }
 
     private boolean checkIfLoginExist(String login) throws SQLException {

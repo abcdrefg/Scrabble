@@ -40,6 +40,21 @@ public class Player {
         AvaibleLetters.add(lettersInBox.getRandomLetterFromBox());
     }
 
+    public void changeLetters(LettersInBox lettersInBox, ArrayList<String> index){
+        if (index.size() == 0){
+            return;
+        }
+        if (index.size() == 1){
+            changeLetter(lettersInBox, AvaibleLetters.indexOf(index.get(0)));
+            return;
+        }
+        for (int i = 0; i < index.size(); i++) {
+            lettersInBox.putLetterInBox(index.get(i));
+            AvaibleLetters.remove(index.get(i));
+            AvaibleLetters.add(lettersInBox.getRandomLetterFromBox());
+        }
+    }
+
     public void removeLetterFromHand(String lettter){
         AvaibleLetters.remove(lettter);
     }
@@ -118,5 +133,17 @@ public class Player {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public static void main(String[] args) {
+        LettersInBox lettersInBox = new LettersInBox();
+        Player player = new Player(true);
+        player.makeHand(lettersInBox);
+        System.out.println(player.getAvaibleLetters());
+        ArrayList<String> list = new ArrayList<>();
+        list.add(player.getAvaibleLetters().get(1));
+        list.add(player.getAvaibleLetters().get(4));
+        player.changeLetters(lettersInBox, list);
+        System.out.println(player.getAvaibleLetters());
     }
 }

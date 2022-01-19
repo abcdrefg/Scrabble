@@ -1,29 +1,35 @@
 package gui;
 
-import Game.Game;
-import Game.Player;
+import Game.*;
 import ScrabbleBoard.Board;
 import ScrabbleBoard.Field;
+import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.fxml.Initializable;
 import javafx.util.Duration;
 import replay.PlayerTurn;
 import wordFinder.PossibleWords;
 
+import java.awt.event.MouseEvent;
 import java.net.URL;
+import java.security.spec.RSAOtherPrimeInfo;
+import java.sql.Time;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
+import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
-public class MapController implements Initializable {
+public class MapController implements Initializable{
     @FXML
     private Button p0_0;
 
@@ -724,6 +730,9 @@ public class MapController implements Initializable {
     private Label TurnP1;
 
     @FXML
+    private Label ErrorLog;
+
+    @FXML
     private Label TurnP2;
 
     @FXML
@@ -771,6 +780,21 @@ public class MapController implements Initializable {
     @FXML
     private Label turnTimeLbl1;
 
+    @FXML
+    private Button ConfirmChangeButton;
+
+    @FXML
+    private Button AddLetterButton;
+
+    @FXML
+    private Button MenuButton;
+
+    @FXML
+    private Button SurrenderButton;
+
+    @FXML
+    private Button PassButton;
+
     private ArrayList<ArrayList<Button>> guiMap = new ArrayList<>();
     private List<Button> alreadyUsedLetters = new ArrayList<>();
     private Board board;
@@ -796,8 +820,8 @@ public class MapController implements Initializable {
     private ArrayList<PlayerTurn> movesLog = new ArrayList<>();
     private long gameTime = 180;
     private long turnTime = 20;
-    private LocalTime startTime = LocalTime.of(0, 0, 0);
-    private LocalTime startTimeGlobal = LocalTime.of(0, 0, 0);
+    private LocalTime startTime = LocalTime.of(0,0,0);
+    private LocalTime startTimeGlobal = LocalTime.of(0,0,0);
     private Timeline clockTurn;
     private Timeline clockGame;
     private long turnSeconds = 59;
@@ -806,24 +830,32 @@ public class MapController implements Initializable {
     private long gameMinutes = 59;
     private int gameEnded;
     private boolean areHumansPresent;
+    private List<Button> lettersToChange = new ArrayList<Button>();
+    private Boolean isDuringChanging;
+    private static final String PATH_TO_MENU = "fxml/Menu.fxml";
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         setGuiMap();
         SubmitButton.setOnAction(actionEvent -> checkWord());
-        ChangeButton.setOnAction(actionEvent -> changeLetter());
+        ChangeButton.setOnAction(actionEvent -> startChanging());
+        ConfirmChangeButton.setOnAction(ActionEvent -> confirmChange());
+        AddLetterButton.setOnAction(ActionEvent -> addLetterToChange());
+        MenuButton.setOnAction(ActionEvent -> mainMenu());
+        SurrenderButton.setOnAction(ActionEvent -> surrender());
         Revert.setOnAction(actionEvent -> revertMove());
+        PassButton.setOnAction(actionEvent -> pass());
         //startTime.now();
     }
 
-    private void startGame() {
+    private void startGame(){
         initializeStartingValuesAndCreateGame();
         preparePlayerLetters();
         prepareGame();
         updateBoard(this.game.getBoard());
         initializePlayerPointsLabelsAndPlayerTurnLabels();
         setCurrentPlayer(this.game.getPLayer().getId());
-        if (!this.game.getPLayer().getIsItHuman()) {
+        if(!this.game.getPLayer().getIsItHuman()) {
             playIfAI();
         }
         if (areHumansPresent) {
@@ -833,7 +865,7 @@ public class MapController implements Initializable {
         }
     }
 
-    public void setCurrentLetter(Button letterButton) {
+    public void setCurrentLetter(Button letterButton){
         if (alreadyUsedLetters.contains(letterButton)) {
             new AlertHandler().display(Alert.AlertType.WARNING, AlertHandler.WRONG_MOVE, AlertHandler.WRONG_MOVE, AlertHandler.ALREADY_USED_LETTER);
         } else {
@@ -847,60 +879,64 @@ public class MapController implements Initializable {
         }
     }
 
-    public void updateBoard(Board board) {
+    public void updateBoard(Board board){
         this.board = board;
-        for (int i = 0; i < 15; i++) {
-            for (int j = 0; j < 15; j++) {
+        for (int i = 0; i < 15; i++){
+            for (int j = 0; j < 15; j++){
                 this.guiMap.get(i).get(j).setText(board.getBoard()[i][j].getLetter().toUpperCase(Locale.ROOT));
                 tempBoard.board[i][j] = new Field(board.getBoard()[i][j].getLetter(), board.getBoard()[i][j].getBonus(), board.getBoard()[i][j].getCordx(), board.getBoard()[i][j].getCordy(), board.getBoard()[i][j].isEmpty());
             }
         }
     }
 
-    public void updateTempBoard(GuiMove move) {
+    public void updateTempBoard(GuiMove move){
         this.tempBoard.board[move.getxCord()][move.getyCord()].setLetter(move.getLetter());
     }
 
-    public void setTimes(long gameMinutes, long gameSeconds, long turnMinutes, long turnSeconds) {
+    public void setTimes(long gameMinutes, long gameSeconds, long turnMinutes, long turnSeconds){
         this.gameMinutes = gameMinutes;
         this.gameSeconds = gameSeconds;
         this.turnSeconds = turnSeconds;
         this.turnMinutes = turnMinutes;
     }
 
-    private void setLetterOnMap(Button button, int i, int j) {
-        if (currentButton.getText() != "") {
-            if (LetterPlacingChecker.isMovePossible(tempBoard, i, j)) {
-                GuiMove move = new GuiMove(i, j, currentButton.getText());
-                button.setText(currentButton.getText());
-                movesList.add(move);
-                alreadyUsedLetters.add(currentButton);
-                currentButton.setDisable(true);
-                currentButton.setStyle("-fx-font-size: 25;" + "-fx-font-weight: bold;");
-                currentButton = defaultButton;
-                updateTempBoard(move);
+    private void setLetterOnMap(Button button, int i, int j){
+        if(!isDuringChanging) {
+            if (currentButton.getText() != "") {
+                if (LetterPlacingChecker.isMovePossible(tempBoard, i, j)) {
+                    GuiMove move = new GuiMove(i, j, currentButton.getText());
+                    button.setText(currentButton.getText());
+                    movesList.add(move);
+                    alreadyUsedLetters.add(currentButton);
+                    currentButton.setDisable(true);
+                    currentButton.setStyle("-fx-font-size: 25;" + "-fx-font-weight: bold;");
+                    currentButton = defaultButton;
+                    updateTempBoard(move);
+                } else {
+                    new AlertHandler().display(Alert.AlertType.WARNING, AlertHandler.WRONG_MOVE, AlertHandler.WRONG_MOVE, AlertHandler.CANT_SET_THIS_LETTER_HERE);
+                }
             } else {
-                new AlertHandler().display(Alert.AlertType.WARNING, AlertHandler.WRONG_MOVE, AlertHandler.WRONG_MOVE, AlertHandler.CANT_SET_THIS_LETTER_HERE);
+                new AlertHandler().display(Alert.AlertType.WARNING, AlertHandler.WRONG_MOVE, AlertHandler.WRONG_MOVE, AlertHandler.CHOOSE_LETTER_BEFORE_MOVE);
             }
         } else {
-            new AlertHandler().display(Alert.AlertType.WARNING, AlertHandler.WRONG_MOVE, AlertHandler.WRONG_MOVE, AlertHandler.CHOOSE_LETTER_BEFORE_MOVE);
+            new AlertHandler().display(Alert.AlertType.WARNING, AlertHandler.WRONG_MOVE, AlertHandler.WRONG_MOVE, AlertHandler.DURING_CHANGING);
         }
     }
 
-    private void checkWord() {
+    private void checkWord(){
         boolean inlineOXAxis = false;
         int wordBegin = 0;
         int wordEnd = 0;
         String word = "";
-        if (LetterPlacingChecker.checkWord(this.board, movesList)) {
-            if (movesList.size() > 1) {
-                if (movesList.get(0).getxCord() == movesList.get(1).getxCord()) {
+        if (LetterPlacingChecker.checkWord(this.board, movesList)){
+            if (movesList.size() > 1){
+                if(movesList.get(0).getxCord() == movesList.get(1).getxCord()){
                     inlineOXAxis = true;
                 }
             }
-            if (movesList.size() == 1) {
+            if (movesList.size() == 1){
                 GuiMove field = LetterPlacingChecker.getOneNeighbour(board, movesList.get(0).getxCord(), movesList.get(0).getyCord());
-                if (field.getxCord() == movesList.get(0).getxCord()) {
+                if (field.getxCord() == movesList.get(0).getxCord()){
                     inlineOXAxis = true;
                 } else {
                     inlineOXAxis = false;
@@ -908,16 +944,16 @@ public class MapController implements Initializable {
             }
             wordBegin = LetterPlacingChecker.findBegining(this.board, movesList, inlineOXAxis);
             wordEnd = LetterPlacingChecker.findEnding(this.board, movesList, inlineOXAxis);
-            if (inlineOXAxis) {
-                Field fieldStart = new Field(" ", 0, movesList.get(0).getxCord(), wordBegin, false);
-                Field fieldEnd = new Field(" ", 0, movesList.get(0).getxCord(), wordEnd, false);
+            if (inlineOXAxis){
+                Field fieldStart = new Field(" ", 0, movesList.get(0).getxCord(), wordBegin,false);
+                Field fieldEnd = new Field(" ", 0, movesList.get(0).getxCord(), wordEnd,false);
                 word = LetterPlacingChecker.getWord(wordBegin, wordEnd, inlineOXAxis, tempBoard, movesList.get(0).getxCord());
                 PossibleWords possibleWords = new PossibleWords(fieldStart, fieldEnd, word);
                 System.out.println(possibleWords.getStartField().getCordx() + " start " + possibleWords.getStartField().getCordy());
                 System.out.println(possibleWords.getEndField().getCordx() + " koniec " + possibleWords.getEndField().getCordy());
                 System.out.println(possibleWords.getWord());
                 possibleWords = this.game.play(possibleWords);
-                if (!checkMove(possibleWords)) {
+                if (!checkMove(possibleWords)){
                     PlayerTurn logTurn = new PlayerTurn(this.game.getPLayer().getPlayerName(), true);
                     logTurn.setPoints(this.game.getPLayer().getPoints());
                     movesLog.add(logTurn);
@@ -943,7 +979,7 @@ public class MapController implements Initializable {
                 System.out.println(possibleWords.getEndField().getCordx() + " koniec " + possibleWords.getEndField().getCordy());
                 System.out.println(possibleWords.getWord());
                 possibleWords = this.game.play(possibleWords);
-                if (!checkMove(possibleWords)) {
+                if (!checkMove(possibleWords)){
                     PlayerTurn logTurn = new PlayerTurn(this.game.getPLayer().getPlayerName(), true);
                     logTurn.setPoints(this.game.getPLayer().getPoints());
                     movesLog.add(logTurn);
@@ -968,21 +1004,21 @@ public class MapController implements Initializable {
         }
     }
 
-    public void setPlayers(List<Player> players) {
+    public void setPlayers(List<Player> players){
         this.players = players;
         areHumansPresent = players.stream().anyMatch(Player::isItHuman);
         startGame();
     }
 
-    public static ArrayList<GuiMove> getClonesOfMovesList(ArrayList<GuiMove> movesList) {
+    public static ArrayList<GuiMove> getClonesOfMovesList(ArrayList<GuiMove> movesList){
         ArrayList<GuiMove> cloneMoves = new ArrayList<>();
-        for (int i = 0; i < movesList.size(); i++) {
+        for (int i = 0 ; i < movesList.size() ; i++){
             cloneMoves.add(movesList.get(i));
         }
         return cloneMoves;
     }
 
-    private void initializeStartingValuesAndCreateGame() {
+    private void initializeStartingValuesAndCreateGame(){
         this.game = new Game(players);
         currentPlayer = 0;
         defaultButton.setText("");
@@ -990,33 +1026,41 @@ public class MapController implements Initializable {
         this.board = new Board();
         tempBoard = new Board();
         gameEnded = 0;
+        isDuringChanging = false;
+        this.AddLetterButton.setDisable(true);
+        this.ConfirmChangeButton.setDisable(true);
     }
 
-    private void changePlayer() {
-        if (this.game.endOfTheGame() && gameEnded == 0) {
+    private void changePlayer(){
+        if(this.game.endOfTheGame() && gameEnded == 0){
             endGame();
         } else {
             setPointsLabel();
             this.game.changePlayer();
         }
+        if(this.game.endOfTheGame() && gameEnded == 0){
+            endGame();
+        }
     }
 
-    private void endGame() {
+    private void endGame(){
         new AlertHandler().display(Alert.AlertType.WARNING, AlertHandler.WRONG_MOVE, AlertHandler.END_OF_THE_GAME, "");
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("fxml/endScene.fxml"));
         ControllersHelper.changeScene(Letter1, fxmlLoader);
         endSceneController endSceneController = fxmlLoader.getController();
         endSceneController.setComponents(players, movesLog);
-        try {
+        try{
             clockTurn.stop();
             clockGame.stop();
-        } catch (Exception e) {
+        } catch (Exception e ){
             System.out.println(e);
         }
         gameEnded = 100;
     }
 
-    private void initializeNextPlayer() {
+    private void initializeNextPlayer(){
+        setBlankLetters();
+        new AlertHandler().display(Alert.AlertType.INFORMATION, "Zamiana gracza", "Zamiana gracza", "Tura gracza " + game.getPLayer().getPlayerName())    ;
         resetTurnTime();
         movesList.clear();
         alreadyUsedLetters.clear();
@@ -1025,14 +1069,14 @@ public class MapController implements Initializable {
         enableMap();
         setPlayerLetters(this.game.getPLayer().getAvaibleLetters());
         setCurrentPlayer(this.game.getPLayer().getId());
-        if (!this.game.getPLayer().getIsItHuman()) {
+        if (!this.game.getPLayer().getIsItHuman()){
             playAI();
         } else {
             newTurnClock();
         }
     }
 
-    private void playAI() {
+    private void playAI(){
         if (gameEnded == 0) {
             cleanLetters();
             disableMap();
@@ -1053,27 +1097,27 @@ public class MapController implements Initializable {
         }
     }
 
-    private void cleanLetters() {
-        for (Button button : playerLetter) {
+    private void cleanLetters(){
+        for (Button button : playerLetter){
             button.setText(" ");
         }
     }
 
-    private void addMoveToMovesLog(PossibleWords word) {
+    private void addMoveToMovesLog(PossibleWords word){
         Field startField = word.getStartField();
         Field endField = word.getEndField();
         Boolean inLineWithOX = false;
         ArrayList<GuiMove> movesLogList = new ArrayList<>();
-        if (startField.getCordx() == endField.getCordx()) {
+        if (startField.getCordx() == endField.getCordx()){
             inLineWithOX = true;
         }
-        if (inLineWithOX) {
-            for (int i = 0; i < word.getWord().length(); i++) {
+        if (inLineWithOX){
+            for (int i = 0 ; i < word.getWord().length() ; i++){
                 GuiMove move = new GuiMove(startField.getCordx(), startField.getCordy() + i, this.board.getBoard()[startField.getCordx()][startField.getCordy() + i].getLetter().toUpperCase(Locale.ROOT));
                 movesLogList.add(move);
             }
-        } else {
-            for (int i = 0; i < word.getWord().length(); i++) {
+        }else {
+            for (int i = 0 ; i < word.getWord().length() ; i++){
                 GuiMove move = new GuiMove(startField.getCordx() + i, startField.getCordy(), this.board.getBoard()[startField.getCordx() + i][startField.getCordy()].getLetter().toUpperCase(Locale.ROOT));
                 movesLogList.add(move);
             }
@@ -1084,27 +1128,28 @@ public class MapController implements Initializable {
         this.movesLog.add(movesLog);
     }
 
-    private void disableMap() {
-        for (Button button : playerLetter) {
+    private void disableMap(){
+        for (Button button : playerLetter){
             button.setDisable(true);
         }
         SubmitButton.setDisable(true);
         ChangeButton.setDisable(true);
+        Revert.setDisable(true);
     }
 
-    private void enableMap() {
-        for (Button button : playerLetter) {
+    private void enableMap(){
+        for (Button button : playerLetter){
             button.setDisable(false);
         }
         SubmitButton.setDisable(false);
         ChangeButton.setDisable(false);
+        Revert.setDisable(false);
     }
-
-    private void playIfAI() {
+    private void playIfAI(){
         playAI();
     }
 
-    private void preparePlayerLetters() {
+    private void preparePlayerLetters(){
         playerLetter.add(Letter1);
         playerLetter.add(Letter2);
         playerLetter.add(Letter3);
@@ -1115,9 +1160,9 @@ public class MapController implements Initializable {
         initializePlayerLetters();
     }
 
-    private void initializeGuiMap() {
-        for (int i = 0; i < 15; i++) {
-            for (int j = 0; j < 15; j++) {
+    private void initializeGuiMap(){
+        for (int i = 0; i < 15; i++){
+            for (int j = 0; j < 15; j++){
                 final int xi = i;
                 final int xj = j;
                 Button currentButtonMap = guiMap.get(i).get(j);
@@ -1129,8 +1174,8 @@ public class MapController implements Initializable {
         }
     }
 
-    private void initializePlayerLetters() {
-        for (int i = 0; i < 7; i++) {
+    private void initializePlayerLetters(){
+        for (int i = 0; i<7 ; i++){
             Button currentButtonLetter = playerLetter.get(i);
             currentButtonLetter.setDisable(false);
             playerLetter.get(i).setOnAction(actionEvent -> setCurrentLetter(currentButtonLetter));
@@ -1139,68 +1184,83 @@ public class MapController implements Initializable {
         }
     }
 
-    private boolean checkMove(PossibleWords returnedValue) {
-        if (returnedValue.getWord() == "0") {
+    private boolean checkMove(PossibleWords returnedValue){
+        if (returnedValue.getWord() == "0"){
             return false;
         }
         return true;
     }
 
-    private void revertMove() {
+    private void revertMove(){
         this.movesList = new ArrayList<>();
+        isDuringChanging = false;
         updateBoard(game.getBoard());
         restoreLetters();
         alreadyUsedLetters.clear();
+        lettersToChange.clear();
+        makeButtonsActiveAfterChange();
     }
 
-    private void restoreLetters() {
-        for (int i = 0; i < playerLetter.size(); i++) {
+    private void restoreLetters(){
+        for(int i = 0 ; i < playerLetter.size() ; i++){
             playerLetter.get(i).setDisable(false);
             playerLetter.get(i).setStyle("-fx-font-weight: bold;" +
                     "-fx-font-size: 25; ");
         }
     }
 
-    private void setCurrentPlayer(int playerIndex) {
-        for (Label lbl : playerTurn) {
+    private void setCurrentPlayer(int playerIndex){
+        for (Label lbl : playerTurn){
             lbl.setStyle(labelStyle);
         }
         playerTurn.get(playerIndex).setStyle(currentLabelStyle);
     }
 
-    private void prepareGame() {
+    private void prepareGame(){
         setPlayerLetters(this.game.getPLayer().getAvaibleLetters());
     }
 
-    private void setPlayerLetters(ArrayList<String> letters) {
-        for (int i = 0; i < this.playerLetter.size(); i++) {
+    private void setPlayerLetters(ArrayList<String> letters){
+        for (int i = 0 ; i < this.playerLetter.size() ; i++){
             playerLetter.get(i).setText("");
         }
-        for (int i = 0; i < letters.size(); i++) {
+        for (int i = 0 ; i < letters.size() ; i++){
             playerLetter.get(i).setText(letters.get(i).toUpperCase(Locale.ROOT));
         }
     }
 
-    private void changeLetter() {
-        if (currentButton == defaultButton) {
-            new AlertHandler().display(Alert.AlertType.WARNING, AlertHandler.WRONG_MOVE, AlertHandler.WRONG_MOVE, AlertHandler.EMPTY_LETTER);
-        } else {
-            PlayerTurn logTurn = new PlayerTurn(this.game.getPLayer().getPlayerName(), true);
-            logTurn.setPoints(this.game.getPLayer().getPoints());
-            movesLog.add(logTurn);
-            revertMove();
-            game.changeLetter(game.getPLayer().getAvaibleLetters().indexOf(currentButton.getText().toLowerCase()));
-            changePlayer();
-            initializeNextPlayer();
+    private void setBlankLetters(){
+        for (int i = 0 ; i < this.playerLetter.size() ; i++){
+            playerLetter.get(i).setText("");
         }
     }
 
-    private void setPointsLabel() {
+    private void changeLetter() {
+        if (lettersToChange.size() >= 0) {
+            PlayerTurn logTurn = new PlayerTurn(this.game.getPLayer().getPlayerName(), true);
+            logTurn.setPoints(this.game.getPLayer().getPoints());
+            movesLog.add(logTurn);
+            ArrayList<String> lettersToChangeIndexes = new ArrayList<>();
+            for (Button button : this.lettersToChange){
+                lettersToChangeIndexes.add(button.getText().toLowerCase());
+            }
+            revertMove();
+            this.game.changeLetters(lettersToChangeIndexes);
+            changePlayer();
+            if(gameEnded == 0) {
+                initializeNextPlayer();
+            }
+        } else {
+            new AlertHandler().display(Alert.AlertType.WARNING, AlertHandler.WRONG_MOVE, AlertHandler.EMPTY_LETTER, "");
+        }
+    }
+
+    private void setPointsLabel(){
         int maxPlayerIndex = 0;
         int maxPlayerValue = 0;
         clearPointsLabel();
-        for (int i = 0; i < players.size(); i++) {
-            if (this.game.getPLayerByIndex(i).getPoints() > maxPlayerValue) {
+        for (int i = 0 ; i < players.size(); i++){
+            if (this.game.getPLayerByIndex(i).getPoints() > maxPlayerValue){
                 maxPlayerIndex = this.game.getPLayerByIndex(i).getId();
                 maxPlayerValue = this.game.getPLayerByIndex(i).getPoints();
             }
@@ -1210,15 +1270,13 @@ public class MapController implements Initializable {
         playerPoints2.get(maxPlayerIndex).setStyle(currentLabelStyle);
         playerPoints2.get(maxPlayerIndex).setText("" + maxPlayerValue);
     }
-
-    private void clearPointsLabel() {
-        for (int j = 0; j < playerPoints1.size(); j++) {
+    private void clearPointsLabel(){
+        for(int j = 0 ; j < playerPoints1.size() ; j++){
             playerPoints1.get(j).setStyle(labelStyle);
             playerPoints2.get(j).setStyle(labelStyle);
         }
     }
-
-    private void initializePlayerPointsLabelsAndPlayerTurnLabels() {
+    private void initializePlayerPointsLabelsAndPlayerTurnLabels(){
         playerTurn.add(TurnP1);
         playerTurn.add(TurnP2);
         playerTurn.add(TurnP3);
@@ -1231,24 +1289,24 @@ public class MapController implements Initializable {
         playerPoints2.add(PointsP2);
         playerPoints2.add(PointsP3);
         playerPoints2.add(PointsP4);
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0 ; i < 4 ; i++){
             playerTurn.get(i).setText("");
             playerPoints1.get(i).setText("");
             playerPoints2.get(i).setText("");
         }
-        for (int i = 0; i < players.size(); i++) {
-            playerTurn.get(i).setText("Gracz " + (i + 1));
-            playerPoints1.get(i).setText("Gracz " + (i + 1));
+        for (int i = 0 ; i < players.size() ; i++){
+            playerTurn.get(i).setText("Gracz " + (i+1));
+            playerPoints1.get(i).setText("Gracz " + (i+1));
             playerPoints2.get(i).setText("0");
         }
     }
 
-    private void newTurnClock() {
-        if (clockTurn != null) {
+    private void newTurnClock(){
+        if (clockTurn != null){
             clockTurn.stop();
         }
         clockTurn = new Timeline(new KeyFrame(Duration.ZERO, e -> {
-            if ((startTime.getSecond() >= this.turnSeconds) && (startTime.getMinute() >= this.turnMinutes)) {
+            if ((startTime.getSecond() >= this.turnSeconds) && (startTime.getMinute() >= this.turnMinutes)){
                 clockTurn.stop();
                 PlayerTurn logTurn = new PlayerTurn(this.game.getPLayer().getPlayerName(), true);
                 logTurn.setPoints(this.game.getPLayer().getPoints());
@@ -1258,8 +1316,8 @@ public class MapController implements Initializable {
                 changePlayer();
                 initializeNextPlayer();
             } else {
-                if (startTime.getNano() != 0) {
-                    turnTimeLbl.setText(startTime.getMinute() + ":" + startTime.getSecond() + ":" + (startTime.getNano() / 100000000));
+                if (startTime.getNano() != 0){
+                    turnTimeLbl.setText(startTime.getMinute() + ":" + startTime.getSecond() + ":" + (startTime.getNano()/100000000));
                 } else {
                     turnTimeLbl.setText(startTime.getMinute() + ":" + startTime.getSecond() + ":0");
                 }
@@ -1270,17 +1328,17 @@ public class MapController implements Initializable {
         clockTurn.play();
     }
 
-    private void newGameClock() {
-        if (clockGame != null) {
+    private void newGameClock(){
+        if (clockGame != null){
             clockGame.stop();
         }
         clockGame = new Timeline(new KeyFrame(Duration.ZERO, e -> {
-            if ((startTimeGlobal.getMinute() >= this.gameMinutes) && (startTimeGlobal.getSecond() >= this.gameSeconds)) {
+            if ((startTimeGlobal.getMinute() >= this.gameMinutes) && (startTimeGlobal.getSecond() >= this.gameSeconds)){
                 clockGame.stop();
                 endGame();
             } else {
-                if (startTimeGlobal.getNano() != 0) {
-                    turnTimeLbl1.setText(startTimeGlobal.getMinute() + ":" + startTimeGlobal.getSecond() + ":" + (startTimeGlobal.getNano() / 100000000));
+                if (startTimeGlobal.getNano() != 0){
+                    turnTimeLbl1.setText(startTimeGlobal.getMinute() + ":" + startTimeGlobal.getSecond() + ":" + (startTimeGlobal.getNano()/100000000));
                 } else {
                     turnTimeLbl1.setText(startTimeGlobal.getMinute() + ":" + startTimeGlobal.getSecond() + ":0");
                 }
@@ -1292,17 +1350,74 @@ public class MapController implements Initializable {
             clockGame.play();
         }
     }
-
-    private void resetTurnTime() {
-        startTime = LocalTime.of(0, 0, 0);
+    private void resetTurnTime(){
+        startTime = LocalTime.of(0,0,0);
     }
-
-    private void clocksStop() {
+    private void clocksStop(){
         clockTurn.pause();
     }
-
-    private void clocksResume() {
+    private void clocksResume(){
         clockTurn.play();
+    }
+
+    private void startChanging(){
+        ChangeButton.setDisable(true);
+        SubmitButton.setDisable(true);
+        this.AddLetterButton.setDisable(false);
+        this.ConfirmChangeButton.setDisable(false);
+        isDuringChanging = true;
+    }
+
+    private void confirmChange(){
+        makeButtonsActiveAfterChange();
+        changeLetter();
+        this.lettersToChange.clear();
+        isDuringChanging = false;
+    }
+
+    private void addLetterToChange(){
+        if (currentButton != defaultButton) {
+            currentButton.setDisable(true);
+            lettersToChange.add(currentButton);
+            currentButton = defaultButton;
+        } else {
+            new AlertHandler().display(Alert.AlertType.WARNING, AlertHandler.WRONG_MOVE, AlertHandler.EMPTY_LETTER, "");
+        }
+    }
+
+    private void makeButtonsActiveAfterChange(){
+        this.ChangeButton.setDisable(false);
+        this.SubmitButton.setDisable(false);
+        this.ConfirmChangeButton.setDisable(true);
+        this.AddLetterButton.setDisable(true);
+
+    }
+
+    private void surrender(){
+        this.game.getPLayer().eliminate();
+        changeLetter();
+    }
+
+    private void mainMenu(){
+        try{
+            clockTurn.stop();
+            clockGame.stop();
+        } catch (Exception e ){
+            System.out.println(e);
+        }
+        gameEnded = 100;
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(PATH_TO_MENU));
+        ControllersHelper.changeScene(this.MenuButton, fxmlLoader);
+    }
+
+    private void pass(){
+        PlayerTurn logTurn = new PlayerTurn(this.game.getPLayer().getPlayerName(), true);
+        movesLog.add(logTurn);
+        ArrayList<String> lettersToChangeIndexes = new ArrayList<>();
+        revertMove();
+        this.game.changeLetters(lettersToChangeIndexes);
+        changePlayer();
+        initializeNextPlayer();
     }
 
     private void setGuiMap() {
