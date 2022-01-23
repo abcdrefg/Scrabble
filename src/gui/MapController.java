@@ -792,11 +792,10 @@ public class MapController implements Initializable{
     @FXML
     private Button SurrenderButton;
 
-    @FXML
-    private Button PassButton;
-
     private ArrayList<ArrayList<Button>> guiMap = new ArrayList<>();
     private List<Button> alreadyUsedLetters = new ArrayList<>();
+    private List<Button> currentLetters = new ArrayList<>();
+    private List<Button> lastTurnLetters = new ArrayList<>();
     private Board board;
     private ArrayList<GuiMove> movesList = new ArrayList<>();
     private Button defaultButton = new Button();
@@ -817,6 +816,9 @@ public class MapController implements Initializable{
             "-fx-font-size: 20; " +
             "-fx-text-fill:  #ffcc66;" +
             "-fx-font-weight: bold;";
+    private final String lastTurnLetterStyle = ("-fx-border-color: white;");
+    private final String normalLetterStyle = (
+            "-fx-border-color: black; ");
     private ArrayList<PlayerTurn> movesLog = new ArrayList<>();
     private long gameTime = 180;
     private long turnTime = 20;
@@ -844,8 +846,6 @@ public class MapController implements Initializable{
         MenuButton.setOnAction(ActionEvent -> mainMenu());
         SurrenderButton.setOnAction(ActionEvent -> surrender());
         Revert.setOnAction(actionEvent -> revertMove());
-        PassButton.setOnAction(actionEvent -> pass());
-        //startTime.now();
     }
 
     private void startGame(){
@@ -906,6 +906,7 @@ public class MapController implements Initializable{
                 if (LetterPlacingChecker.isMovePossible(tempBoard, i, j)) {
                     GuiMove move = new GuiMove(i, j, currentButton.getText());
                     button.setText(currentButton.getText());
+                    currentLetters.add(button);
                     movesList.add(move);
                     alreadyUsedLetters.add(currentButton);
                     currentButton.setDisable(true);
@@ -949,14 +950,13 @@ public class MapController implements Initializable{
                 Field fieldEnd = new Field(" ", 0, movesList.get(0).getxCord(), wordEnd,false);
                 word = LetterPlacingChecker.getWord(wordBegin, wordEnd, inlineOXAxis, tempBoard, movesList.get(0).getxCord());
                 PossibleWords possibleWords = new PossibleWords(fieldStart, fieldEnd, word);
-                System.out.println(possibleWords.getStartField().getCordx() + " start " + possibleWords.getStartField().getCordy());
-                System.out.println(possibleWords.getEndField().getCordx() + " koniec " + possibleWords.getEndField().getCordy());
-                System.out.println(possibleWords.getWord());
                 possibleWords = this.game.play(possibleWords);
                 if (!checkMove(possibleWords)){
                     PlayerTurn logTurn = new PlayerTurn(this.game.getPLayer().getPlayerName(), true);
                     logTurn.setPoints(this.game.getPLayer().getPoints());
                     movesLog.add(logTurn);
+                    currentLetters.clear();
+                    highlightLastTurnLetters();
                     clocksStop();
                     new AlertHandler().display(Alert.AlertType.WARNING, AlertHandler.WRONG_MOVE, AlertHandler.WRONG_MOVE, AlertHandler.INCORRECT_WORD);
                     revertMove();
@@ -966,6 +966,8 @@ public class MapController implements Initializable{
                     ArrayList<String> availableLetters = new ArrayList<>(this.game.getPLayer().getAvaibleLetters());
                     PlayerTurn logTurn = new PlayerTurn(this.game.getPLayer().getPlayerName(), false, getClonesOfMovesList(movesList), fieldStart.getCordx(), fieldStart.getCordy(), fieldEnd.getCordx(), fieldEnd.getCordy(), availableLetters);
                     logTurn.setPoints(this.game.getPLayer().getPoints());
+                    currentLetters.add(guiMap.get(fieldStart.getCordx()).get(fieldStart.getCordy()));
+                    highlightLastTurnLetters();
                     movesLog.add(logTurn);
                     changePlayer();
                     initializeNextPlayer();
@@ -975,14 +977,13 @@ public class MapController implements Initializable{
                 Field fieldEnd = new Field("x", 0, wordEnd, movesList.get(0).getyCord(), false);
                 word = LetterPlacingChecker.getWord(wordBegin, wordEnd, inlineOXAxis, tempBoard, movesList.get(0).getyCord());
                 PossibleWords possibleWords = new PossibleWords(fieldStart, fieldEnd, word);
-                System.out.println(possibleWords.getStartField().getCordx() + " start " + possibleWords.getStartField().getCordy());
-                System.out.println(possibleWords.getEndField().getCordx() + " koniec " + possibleWords.getEndField().getCordy());
-                System.out.println(possibleWords.getWord());
                 possibleWords = this.game.play(possibleWords);
                 if (!checkMove(possibleWords)){
                     PlayerTurn logTurn = new PlayerTurn(this.game.getPLayer().getPlayerName(), true);
                     logTurn.setPoints(this.game.getPLayer().getPoints());
                     movesLog.add(logTurn);
+                    currentLetters.clear();
+                    highlightLastTurnLetters();
                     clocksStop();
                     new AlertHandler().display(Alert.AlertType.WARNING, AlertHandler.WRONG_MOVE, AlertHandler.WRONG_MOVE, AlertHandler.INCORRECT_WORD);
                     revertMove();
@@ -991,7 +992,10 @@ public class MapController implements Initializable{
                 } else {
                     ArrayList<String> availableLetters = new ArrayList<>(this.game.getPLayer().getAvaibleLetters());
                     PlayerTurn logTurn = new PlayerTurn(this.game.getPLayer().getPlayerName(), false, getClonesOfMovesList(movesList), fieldStart.getCordx(), fieldStart.getCordy(), fieldEnd.getCordx(), fieldEnd.getCordy(), availableLetters);
+                    currentLetters.add(guiMap.get(fieldStart.getCordx()).get(fieldStart.getCordy()));
+                    currentLetters.add(guiMap.get(fieldEnd.getCordx()).get(fieldEnd.getCordy()));
                     logTurn.setPoints(this.game.getPLayer().getPoints());
+                    highlightLastTurnLetters();
                     movesLog.add(logTurn);
                     changePlayer();
                     initializeNextPlayer();
@@ -1059,7 +1063,11 @@ public class MapController implements Initializable{
     }
 
     private void initializeNextPlayer(){
+        currentLetters.clear();
         setBlankLetters();
+        if (areHumansPresent) {
+            clockTurn.stop();
+        }
         new AlertHandler().display(Alert.AlertType.INFORMATION, "Zamiana gracza", "Zamiana gracza", "Tura gracza " + game.getPLayer().getPlayerName())    ;
         resetTurnTime();
         movesList.clear();
@@ -1084,11 +1092,13 @@ public class MapController implements Initializable{
             if (!temp.getWord().equals("0")) {
                 addMoveToMovesLog(temp);
             } else {
+                currentLetters.clear();
                 PlayerTurn moveLog = new PlayerTurn(this.game.getPLayer().getPlayerName(), true);
                 moveLog.setPoints(this.game.getPLayer().getPoints());
                 movesLog.add(moveLog);
             }
             updateBoard(this.game.getBoard());
+            highlightLastTurnLetters();
             new AlertHandler().display(Alert.AlertType.WARNING, AlertHandler.WRONG_MOVE, AlertHandler.END_OF_AI_MOVE, "");
             changePlayer();
             if (!this.game.endOfTheGame()) {
@@ -1114,11 +1124,13 @@ public class MapController implements Initializable{
         if (inLineWithOX){
             for (int i = 0 ; i < word.getWord().length() ; i++){
                 GuiMove move = new GuiMove(startField.getCordx(), startField.getCordy() + i, this.board.getBoard()[startField.getCordx()][startField.getCordy() + i].getLetter().toUpperCase(Locale.ROOT));
+                currentLetters.add(guiMap.get(startField.getCordx()).get(startField.getCordy() + i));
                 movesLogList.add(move);
             }
         }else {
             for (int i = 0 ; i < word.getWord().length() ; i++){
                 GuiMove move = new GuiMove(startField.getCordx() + i, startField.getCordy(), this.board.getBoard()[startField.getCordx() + i][startField.getCordy()].getLetter().toUpperCase(Locale.ROOT));
+                currentLetters.add(guiMap.get(startField.getCordx() + i).get(startField.getCordy()));
                 movesLogList.add(move);
             }
         }
@@ -1418,6 +1430,17 @@ public class MapController implements Initializable{
         this.game.changeLetters(lettersToChangeIndexes);
         changePlayer();
         initializeNextPlayer();
+    }
+
+    private void highlightLastTurnLetters(){
+        for (Button b : lastTurnLetters) {
+            b.setStyle(b.getStyle() + normalLetterStyle);
+        }
+        for (Button b : currentLetters) {
+            b.setStyle(b.getStyle() + lastTurnLetterStyle);
+        }
+        lastTurnLetters.clear();
+        lastTurnLetters.addAll(currentLetters);
     }
 
     private void setGuiMap() {
